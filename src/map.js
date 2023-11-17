@@ -45,7 +45,13 @@ const initMap = () => {
     map.addControl(drawControl);
 
     map.on("draw:created", function (e) {
-        drawnItems.addLayer(e.layer);
+        const layer = e.layer;
+        layer.bindPopup("", {
+            maxHeight: "auto",
+        maxWidth: "auto"
+        });
+        layer.on("popupopen", attachPopupContent);
+        drawnItems.addLayer(layer);
     });
     return { map, drawnItems };
 };
@@ -61,7 +67,13 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     const errorLog = document.getElementById("error-log");
     var control = new L.Control.Button(() => {
         try {
-            drawnItems.addLayer(new L.GeoJSON(JSON.parse(editor.getValue())));
+            const layer = new L.GeoJSON(JSON.parse(editor.getValue()));
+            layer.bindPopup("", {
+                maxHeight: "auto",
+        maxWidth: "auto"
+            });
+            layer.on("popupopen", attachPopupContent);
+            drawnItems.addLayer(layer);
             errorLog.classList.add("hidden");
         } catch (e) {
             errorLog.classList.remove("hidden");
@@ -77,5 +89,45 @@ const loadExample = async ({ map, drawnItems }) => {
             return resp.text();
         }
     );
-    drawnItems.addLayer(new L.GeoJSON(JSON.parse(content)));
+    const layer = new L.GeoJSON(JSON.parse(content));
+    layer.bindPopup("", {
+        maxHeight: "auto",
+        maxWidth: "auto"
+    });
+    layer.on("popupopen", attachPopupContent);
+    drawnItems.addLayer(layer);
+};
+
+const attachPopupContent = async (evt) => {
+    let polygon = turf.polygon(evt.propagatedFrom.feature.geometry.coordinates);
+    const sqMtrs = turf.area(polygon).toFixed(2);
+    const sqFt = (sqMtrs * 10.7639).toFixed(2);
+    const sqKm = (sqMtrs * 0.000001).toFixed(2);
+    const sqMi = (sqMtrs * 0.0000003861).toFixed(2);
+    const acres = (sqMtrs * 0.000247105).toFixed(2);
+    evt.popup.setContent(
+        `
+        <div>
+            <table>
+                <tbody>
+                <tr class="odd:bg-white even:bg-gray-200">
+                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Meters</th><td>${sqMtrs}</td>
+                </tr>
+                <tr class="odd:bg-white even:bg-gray-200">
+                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Kilometers</th><td>${sqKm}</td>
+                </tr>
+                <tr class="odd:bg-white even:bg-gray-200">
+                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Feet</th><td>${sqFt}</td>
+                </tr>
+                <tr class="odd:bg-white even:bg-gray-200">
+                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Miles</th><td>${sqMi}</td>
+                </tr>
+                <tr class="odd:bg-white even:bg-gray-200">
+                    <th class="font-bold whitespace-nowrap py-1 px-5">Acres</th><td>${acres}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        `
+    );
 };
