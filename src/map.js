@@ -48,9 +48,11 @@ const initMap = () => {
         const layer = e.layer;
         layer.bindPopup("", {
             maxHeight: "auto",
-        maxWidth: "auto"
+            maxWidth: "auto",
         });
-        layer.on("popupopen", attachPopupContent);
+        layer.on("popupopen", (evt) => {
+            evt.popup.setContent(attachPopupContent(layer));
+        });
         drawnItems.addLayer(layer);
     });
     return { map, drawnItems };
@@ -67,13 +69,8 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     const errorLog = document.getElementById("error-log");
     var control = new L.Control.Button(() => {
         try {
-            const layer = new L.GeoJSON(JSON.parse(editor.getValue()));
-            layer.bindPopup("", {
-                maxHeight: "auto",
-        maxWidth: "auto"
-            });
-            layer.on("popupopen", attachPopupContent);
-            drawnItems.addLayer(layer);
+            const geoJSON = JSON.parse(editor.getValue());
+            loadGeoJSON({map, drawnItems,geoJSON})
             errorLog.classList.add("hidden");
         } catch (e) {
             errorLog.classList.remove("hidden");
@@ -83,30 +80,39 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     control.addTo(map);
 };
 
+const loadGeoJSON = async ({ map, drawnItems, geoJSON }) => {
+    L.geoJSON(geoJSON, {
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup("", {
+                maxHeight: "auto",
+                maxWidth: "auto",
+            });
+            layer.on("popupopen", (evt) => {
+                evt.popup.setContent(attachPopupContent(layer));
+            });
+            drawnItems.addLayer(layer);
+        },
+    }).addTo(map);
+};
 const loadExample = async ({ map, drawnItems }) => {
     const content = await fetch("../src/examples/ny-area.geojson").then(
         (resp) => {
             return resp.text();
         }
     );
-    const layer = new L.GeoJSON(JSON.parse(content));
-    layer.bindPopup("", {
-        maxHeight: "auto",
-        maxWidth: "auto"
-    });
-    layer.on("popupopen", attachPopupContent);
-    drawnItems.addLayer(layer);
+    const geoJSON = JSON.parse(content);
+    loadGeoJSON({ map, drawnItems, geoJSON });
 };
 
-const attachPopupContent = async (evt) => {
-    let polygon = turf.polygon(evt.propagatedFrom.feature.geometry.coordinates);
+const attachPopupContent = (layer) => {
+    const feature = layer.toGeoJSON();
+    let polygon = turf.polygon(feature.geometry.coordinates);
     const sqMtrs = turf.area(polygon).toFixed(2);
     const sqFt = (sqMtrs * 10.7639).toFixed(2);
     const sqKm = (sqMtrs * 0.000001).toFixed(2);
     const sqMi = (sqMtrs * 0.0000003861).toFixed(2);
     const acres = (sqMtrs * 0.000247105).toFixed(2);
-    evt.popup.setContent(
-        `
+    return `
         <div>
             <table>
                 <tbody>
@@ -128,6 +134,5 @@ const attachPopupContent = async (evt) => {
                 </tbody>
             </table>
         </div>
-        `
-    );
+        `;
 };
