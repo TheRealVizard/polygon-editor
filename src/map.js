@@ -70,7 +70,7 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     var control = new L.Control.Button(() => {
         try {
             const geoJSON = JSON.parse(editor.getValue());
-            loadGeoJSON({map, drawnItems,geoJSON})
+            loadGeoJSON({ map, drawnItems, geoJSON });
             errorLog.classList.add("hidden");
         } catch (e) {
             errorLog.classList.remove("hidden");
@@ -112,25 +112,35 @@ const attachPopupContent = (layer) => {
     const sqKm = (sqMtrs * 0.000001).toFixed(2);
     const sqMi = (sqMtrs * 0.0000003861).toFixed(2);
     const acres = (sqMtrs * 0.000247105).toFixed(2);
+    const ha = (sqMtrs * 0.0001).toFixed(2);
     return `
         <div>
             <table>
                 <tbody>
-                <tr class="odd:bg-white even:bg-gray-200">
-                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Meters</th><td>${sqMtrs}</td>
-                </tr>
-                <tr class="odd:bg-white even:bg-gray-200">
-                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Kilometers</th><td>${sqKm}</td>
-                </tr>
-                <tr class="odd:bg-white even:bg-gray-200">
-                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Feet</th><td>${sqFt}</td>
-                </tr>
-                <tr class="odd:bg-white even:bg-gray-200">
-                    <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Miles</th><td>${sqMi}</td>
-                </tr>
-                <tr class="odd:bg-white even:bg-gray-200">
-                    <th class="font-bold whitespace-nowrap py-1 px-5">Acres</th><td>${acres}</td>
-                </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Meters</th>
+                        <td>${sqMtrs}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Kilometers</th>
+                        <td>${sqKm}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Feet</th>
+                        <td>${sqFt}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Sq. Miles</th>
+                        <td>${sqMi}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Acres</th>
+                        <td>${acres}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-200">
+                        <th class="font-bold whitespace-nowrap py-1 px-5">Hectare</th>
+                        <td>${ha}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
