@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Polygon Editor</title>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
+        />
+
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="src/map.js"></script>
+        <script src="src/tags.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js" integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded",()=>{
+                var editor = ace.edit("editor");
+            editor.setTheme("ace/theme/one_dark");
+            editor.session.setMode("ace/mode/javascript");
+            })
+        </script>
+    <body>
+        <div class="flex flex-row flex-nowrap">
+            <div id="map" class="w-screen h-screen z-1"></div>
+            <div class="bg-slate-900 w-1/2">
+                <div id="editor" class="w-full h-screen">{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+                "coordinates": [
+                [
+                    [
+                    -74.09430592584012,
+                    40.7170874478756
+                    ],
+                    [
+                    -74.09430592584012,
+                    40.666865870666726
+                    ],
+                    [
+                    -73.99443764057717,
+                    40.666865870666726
+                    ],
+                    [
+                    -73.99443764057717,
+                    40.7170874478756
+                    ],
+                    [
+                    -74.09430592584012,
+                    40.7170874478756
+                    ]
+                ]
+                ],
+                "type": "Polygon"
+            }
+        }
+    ]
+}
+</div>
+            </div>
+        </div>
+            <!-- <include src="../src/components/modal.html" /> -->
+        
+    </body>
+</html>
