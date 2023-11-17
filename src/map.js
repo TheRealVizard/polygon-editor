@@ -22,8 +22,9 @@ L.Control.Button = L.Control.extend({
 
 document.addEventListener("DOMContentLoaded", () => {
     const { map, drawnItems } = initMap();
-    addMapBtns({map, drawnItems});
-    loadExample({map, drawnItems});
+    const { editor } = initEditor();
+    addMapBtns({ map, drawnItems, editor });
+    loadExample({ map, drawnItems });
 });
 
 const initMap = () => {
@@ -49,18 +50,32 @@ const initMap = () => {
     return { map, drawnItems };
 };
 
-const addMapBtns = ({ map, drawnItems }) => {
+const initEditor = () => {
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/one_dark");
+    editor.session.setMode("ace/mode/javascript");
+    return { editor };
+};
+
+const addMapBtns = ({ map, drawnItems, editor }) => {
+    const errorLog = document.getElementById("error-log");
     var control = new L.Control.Button(() => {
-        console.log("Test...");
-    }, "Import GeoJSON");
+        try {
+            drawnItems.addLayer(new L.GeoJSON(JSON.parse(editor.getValue())));
+            errorLog.classList.add("hidden");
+        } catch (e) {
+            errorLog.classList.remove("hidden");
+            errorLog.innerHTML = e.toString();
+        }
+    }, "Import As GeoJSON");
     control.addTo(map);
 };
 
 const loadExample = async ({ map, drawnItems }) => {
-    const content = await fetch(
-        "../src/examples/ny-area.geojson"
-    ).then((resp) => {
-        return resp.text();
-    });
+    const content = await fetch("../src/examples/ny-area.geojson").then(
+        (resp) => {
+            return resp.text();
+        }
+    );
     drawnItems.addLayer(new L.GeoJSON(JSON.parse(content)));
 };
