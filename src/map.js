@@ -54,6 +54,7 @@ const initMap = ({ editor }) => {
         layer.on("popupopen", (evt) => {
             evt.popup.setContent(attachPopupContent({ layer, editor }));
         });
+        layer.setStyle({ color: randomColor() });
         drawnItems.addLayer(layer);
     });
     return { map, drawnItems };
@@ -91,6 +92,7 @@ const loadGeoJSON = async ({ map, drawnItems, geoJSON, editor }) => {
             layer.on("popupopen", (evt) => {
                 evt.popup.setContent(attachPopupContent({ layer, editor }));
             });
+            layer.setStyle({ color: randomColor() });
             drawnItems.addLayer(layer);
         },
     }).addTo(map);
@@ -163,6 +165,36 @@ const attachPopupContent = ({ layer, editor }) => {
     });
     return content;
 };
+
+const randomColor = (() => {
+    const randomInt = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    function hsl2rgb(h, s, l) {
+        s /= 100;
+        l /= 100;
+        let a = s * Math.min(l, 1 - l);
+        let f = (n, k = (n + h / 30) % 12) =>
+            l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return [
+            Math.round(255 * f(0)),
+            Math.round(255 * f(8)),
+            Math.round(255 * f(4)),
+        ];
+    }
+    function numHex(s) {
+        let a = s.toString(16);
+        return a.padStart(2, "0");
+    }
+    return () => {
+        let rgb = hsl2rgb(
+            randomInt(0, 360),
+            randomInt(42, 98),
+            randomInt(20, 50)
+        );
+        return `#${numHex(rgb[0])}${numHex(rgb[1])}${numHex(rgb[2])}`;
+    };
+})();
 
 const addEventListeners = () => {
     // document.addEventListener("click", (evt) => {
