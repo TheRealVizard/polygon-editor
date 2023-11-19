@@ -21,14 +21,14 @@ L.Control.Button = L.Control.extend({
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    const { map, drawnItems } = initMap();
     const { editor } = initEditor();
+    const { map, drawnItems } = initMap({ editor });
     addMapBtns({ map, drawnItems, editor });
-    loadExample({ map, drawnItems });
+    loadExample({ map, drawnItems, editor });
     addEventListeners();
 });
 
-const initMap = () => {
+const initMap = ({ editor }) => {
     const map = L.map("map").setView([40.689247, -74.044502], 12);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -52,7 +52,7 @@ const initMap = () => {
             maxWidth: "auto",
         });
         layer.on("popupopen", (evt) => {
-            evt.popup.setContent(attachPopupContent(layer));
+            evt.popup.setContent(attachPopupContent({ layer, editor }));
         });
         drawnItems.addLayer(layer);
     });
@@ -71,7 +71,7 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     var control = new L.Control.Button(() => {
         try {
             const geoJSON = JSON.parse(editor.getValue());
-            loadGeoJSON({ map, drawnItems, geoJSON });
+            loadGeoJSON({ map, drawnItems, geoJSON, editor });
             errorLog.classList.add("hidden");
         } catch (e) {
             errorLog.classList.remove("hidden");
@@ -81,7 +81,7 @@ const addMapBtns = ({ map, drawnItems, editor }) => {
     control.addTo(map);
 };
 
-const loadGeoJSON = async ({ map, drawnItems, geoJSON }) => {
+const loadGeoJSON = async ({ map, drawnItems, geoJSON, editor }) => {
     L.geoJSON(geoJSON, {
         onEachFeature: (feature, layer) => {
             layer.bindPopup("", {
@@ -89,23 +89,23 @@ const loadGeoJSON = async ({ map, drawnItems, geoJSON }) => {
                 maxWidth: "auto",
             });
             layer.on("popupopen", (evt) => {
-                evt.popup.setContent(attachPopupContent(layer));
+                evt.popup.setContent(attachPopupContent({ layer, editor }));
             });
             drawnItems.addLayer(layer);
         },
     }).addTo(map);
 };
-const loadExample = async ({ map, drawnItems }) => {
+const loadExample = async ({ map, drawnItems, editor }) => {
     const content = await fetch("../src/examples/ny-area.geojson").then(
         (resp) => {
             return resp.text();
         }
     );
     const geoJSON = JSON.parse(content);
-    loadGeoJSON({ map, drawnItems, geoJSON });
+    loadGeoJSON({ map, drawnItems, geoJSON, editor });
 };
 
-const attachPopupContent = (layer) => {
+const attachPopupContent = ({ layer, editor }) => {
     const feature = layer.toGeoJSON();
     let polygon = turf.polygon(feature.geometry.coordinates);
     const sqMtrs = turf.area(polygon).toFixed(2);
@@ -147,13 +147,20 @@ const attachPopupContent = (layer) => {
     </table>
     <div class="flex flex-nowrap flex-row my-2 justify-between">
         <input type="color" id="feature-color" value="${currentColor}">
-    </div>
+        <button type="button" 
+            id="get-feature"
+            class="change-feature-color bg-slate-600 px-2 text-white rounded-xl hover:bg-slate-500 active:bg-slate-700">
+            Export feature
+        </button>
         `;
     content
         .querySelector("#feature-color")
         .addEventListener("input", (event) => {
             layer.setStyle({ color: event.target.value });
         });
+    content.querySelector("#get-feature").addEventListener("click", (event) => {
+        editor.setValue(JSON.stringify(feature, null, "\t"));
+    });
     return content;
 };
 
