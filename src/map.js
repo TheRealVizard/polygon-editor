@@ -98,7 +98,7 @@ const loadGeoJSON = async ({ map, drawnItems, geoJSON, editor }) => {
     }).addTo(map);
 };
 const loadExample = async ({ map, drawnItems, editor }) => {
-    const geoJSON = await fetch("/src/examples/ny-area.geojson").then(
+    const geoJSON = await fetch("./src/examples/ny-area.geojson").then(
         (resp) => {
             return resp.json();
         }
